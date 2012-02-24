@@ -1,0 +1,8 @@
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?subject owl:sameAs ?x .
+  ?subject owl:sameAs ?s .
+} WHERE {
+  ?s owl:sameAs ?x .
+}

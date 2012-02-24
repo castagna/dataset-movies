@@ -1,0 +1,10 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX freebase: <http://rdf.freebase.com/ns/>
+
+CONSTRUCT {
+  ?subject rdfs:label ?label_no_lang .
+} WHERE {
+  ?s freebase:type.object.name ?label .
+  FILTER langmatches( lang(?label), "en") .
+  BIND ( STR(?label) AS ?label_no_lang )
+}

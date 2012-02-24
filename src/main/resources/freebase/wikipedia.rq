@@ -1,0 +1,13 @@
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX freebase: <http://rdf.freebase.com/ns/>
+PREFIX recipe: <http://linkedrecipes.org/schema/> 
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+CONSTRUCT {
+  ?subject foaf:isPrimaryTopicOf ?iri .
+} WHERE {
+  ?s freebase:type.object.key ?key .
+  ?key freebase:type.key.namespace freebase:wikipedia.en_title .
+  ?key freebase:type.value.value ?value .
+  BIND ( IRI (CONCAT("http://en.wikipedia.org/wiki/", ?value)) AS ?iri )
+}

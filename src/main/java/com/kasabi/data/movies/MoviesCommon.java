@@ -48,9 +48,11 @@ public class MoviesCommon {
 	public static final String RDF_FREEBASE_NS = "http://rdf.freebase.com/rdf";
 
 	public static final String KASABI_MOVIES_BASE = "http://data.kasabi.com/dataset/movies/";
+	public static final String KASABI_MOVIES_SCHEMA = KASABI_MOVIES_BASE + "schema/";
 	public static final String KASABI_MOVIES_NS = KASABI_MOVIES_BASE ;
 	public static final String KASABI_ACTORS_NS = KASABI_MOVIES_BASE + "actors/" ;
-	
+	public static final String KASABI_DIRECTORS_NS = KASABI_MOVIES_BASE + "directors/" ;
+
 	public static Model createModel() {
 		Model model = ModelFactory.createDefaultModel();
 		setPrefixes(model);

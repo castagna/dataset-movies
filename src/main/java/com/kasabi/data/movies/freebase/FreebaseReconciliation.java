@@ -23,14 +23,21 @@ import static com.kasabi.data.movies.MoviesCommon.RDF_FREEBASE_NS;
 import java.io.InputStream;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.freebase.api.Freebase;
 import com.freebase.json.JSON;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.util.FileManager;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.kasabi.data.movies.MoviesCommon;
 
 public class FreebaseReconciliation {
 
+	protected static final Logger log = LoggerFactory.getLogger(FreebaseReconciliation.class) ;
 	private static final FileManager fm = MoviesCommon.getFileManager(RDF_FREEBASE_NS); 
 	
 	public static void main(String[] args) {
@@ -49,15 +56,16 @@ public class FreebaseReconciliation {
 	}
 	
 	public static String getURI(Freebase freebase, String string) {
+		String uri = null;
 		JSON response = freebase.search(string); 
 		@SuppressWarnings("unchecked")
 		List topics = response.get("result").array();
 		for ( Object topic : topics ) {
 			JSON json = (JSON)topic;
-			return RDF_FREEBASE_NS + json.get("id").string();
+			uri = RDF_FREEBASE_NS + json.get("id").string();
 		}
-		
-		return null;
+		log.debug("getURI({}, {}) --> {}", new Object[]{freebase, string, uri});
+		return uri;
 	}
 	
 	public static Model get(Freebase freebase, String string) {
@@ -67,6 +75,21 @@ public class FreebaseReconciliation {
 			InputStream in = fm.openNoMap(uri);
 			model.read(in, RDF_FREEBASE_NS);			
 		}
+		log.debug("get({}, {}) --> {} triples", new Object[]{freebase, string, model.size()});
+		return model;
+	}
+	
+	public static Model get( Freebase freebase, String string, Resource subject ) {
+		Model model = MoviesCommon.createModel();
+		String uri = getURI(freebase, string);
+		if ( uri != null ) {
+			InputStream in = fm.openNoMap(uri);
+			model.read ( in, RDF_FREEBASE_NS );
+			Resource r = ResourceFactory.createResource(uri);
+			model.add ( subject, OWL.sameAs, r );
+			model.add ( r, OWL.sameAs, subject );
+		}
+		log.debug("get({}, {}, {}) --> {} triples", new Object[]{freebase, string, subject, model.size()});
 		return model;
 	}
 

@@ -100,8 +100,8 @@ public class FreebaseMovies {
 					result.add ( getModel("src/main/resources/freebase", model, qsm) );
 					result.add ( getModel("src/main/resources/freebase" + type, model, qsm) );
 
-//					model.write(System.out, "TURTLE");
-//					System.out.println("=============================");
+					model.write(System.out, "TURTLE");
+					System.out.println("=============================");
 					result.write(System.out, "TURTLE");
 
 					log.debug("{} - {} ({}) retrieved {} triples", new Object[]{++count, topic_name, topic_id, model.size()});

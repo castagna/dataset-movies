@@ -56,8 +56,8 @@ public class FreebaseMoviesCrawler {
 	private static final FileManager fm = MoviesCommon.getFileManager(RDF_FREEBASE_NS); 
 	
 	public static void main(String[] args) throws ParseException {
-//		list ( "/film/actor", MoviesCommon.KASABI_ACTORS_NS, ResourceFactory.createResource(MoviesCommon.KASABI_ACTORS_NS + "Actor") );
-		list ( "/film/film", MoviesCommon.KASABI_MOVIES_NS, ResourceFactory.createResource(MoviesCommon.KASABI_MOVIES_NS + "Movie") );
+		list ( "/film/actor", MoviesCommon.KASABI_ACTORS_NS, ResourceFactory.createResource(MoviesCommon.KASABI_ACTORS_NS + "Actor") );
+//		list ( "/film/film", MoviesCommon.KASABI_MOVIES_NS, ResourceFactory.createResource(MoviesCommon.KASABI_MOVIES_NS + "Movie") );
 	}
 	
 	private static void list( final String type, final String namespace, final Resource new_type ) {
@@ -82,43 +82,47 @@ public class FreebaseMoviesCrawler {
 			for ( Object topic : topics ) {
 				count++;
 				log.debug ("Retrieving topic {} ...", count);
-				final String topic_id = ((JSON)topic).get("id").string();
-				final String topic_name = ((JSON)topic).get("name").string();	
-				final String topic_rdf_url = RDF_FREEBASE_NS + topic_id;
-		        try {
-		            final Callable<Boolean> task = new Callable<Boolean>() {
-		                @Override
-		                public Boolean call() throws Exception {
-		    				Model model = load ( fm.openNoMap(topic_rdf_url), RDF_FREEBASE_NS );
+				JSON json_topic_id = ((JSON)topic).get("id");
+				JSON json_topic_name = ((JSON)topic).get("name");
+				if ( (json_topic_id != null) && (json_topic_name != null) ) {
+					final String topic_id = json_topic_id.string();
+					final String topic_name = ((JSON)topic).get("name").string();	
+					final String topic_rdf_url = RDF_FREEBASE_NS + topic_id;
+			        try {
+			            final Callable<Boolean> task = new Callable<Boolean>() {
+			                @Override
+			                public Boolean call() throws Exception {
+			    				Model model = load ( fm.openNoMap(topic_rdf_url), RDF_FREEBASE_NS );
 
-		    				if ( topic_name != null ) {
-		    					Resource new_subject = ResourceFactory.createResource(namespace + Utils.toSlug(topic_name));
-		    					Resource freebase_subject = ResourceFactory.createResource(topic_rdf_url);
-		    					QuerySolutionMap qsm = new QuerySolutionMap();
-		    					qsm.add("subject", new_subject);
-		    					qsm.add("type", new_type);
-		    					qsm.add("freebase_subject", freebase_subject);
+			    				if ( topic_name != null ) {
+			    					Resource new_subject = ResourceFactory.createResource(namespace + Utils.toSlug(topic_name));
+			    					Resource freebase_subject = ResourceFactory.createResource(topic_rdf_url);
+			    					QuerySolutionMap qsm = new QuerySolutionMap();
+			    					qsm.add("subject", new_subject);
+			    					qsm.add("type", new_type);
+			    					qsm.add("freebase_subject", freebase_subject);
 
-		    					Model result = MoviesCommon.createModel();
-		    					result.add ( getModel("src/main/resources/freebase", model, qsm) );
-		    					result.add ( getModel("src/main/resources/freebase" + type, model, qsm) );
+			    					Model result = MoviesCommon.createModel();
+			    					result.add ( getModel("src/main/resources/freebase", model, qsm) );
+			    					result.add ( getModel("src/main/resources/freebase" + type, model, qsm) );
 
-//		    					model.write(System.out, "TURTLE");
-//		    					System.out.println("=============================");
-//		    					result.write(System.out, "TURTLE");
+//			    					model.write(System.out, "TURTLE");
+//			    					System.out.println("=============================");
+//			    					result.write(System.out, "TURTLE");
 
-		    					log.debug("{} ({}) retrieved {} triples", new Object[]{topic_name, topic_id, model.size()});
-		    				} else {
-		    					log.warn("Topic {} has no label...", topic_id);
-		    					return Boolean.FALSE ;
-		    				}
-		                    return Boolean.TRUE ;
-		            }} ;
-		            executor.submit(task) ;
-		        } catch (RuntimeException e) {
-		            log.error(e.getMessage()) ;
-		        }
-			};
+			    					log.debug("{} ({}) retrieved {} triples", new Object[]{topic_name, topic_id, model.size()});
+			    				} else {
+			    					log.warn("Topic {} has no label...", topic_id);
+			    					return Boolean.FALSE ;
+			    				}
+			                    return Boolean.TRUE ;
+			            }} ;
+			            executor.submit(task) ;
+			        } catch (RuntimeException e) {
+			            log.error(e.getMessage()) ;
+			        }
+				}
+			}
 			cursor = response.get("cursor");
 		}
 	}

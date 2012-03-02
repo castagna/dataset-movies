@@ -1,0 +1,10 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+CONSTRUCT {
+  ?subject owl:sameAs ?dbpedia_subject .
+} WHERE {
+  ?dbpedia_subject foaf:name ?name . 
+  BIND ( STR(?name) AS ?name_no_lang ) 
+  FILTER ( ?name_no_lang = ?label ) 
+}

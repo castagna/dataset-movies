@@ -1,0 +1,13 @@
+PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+
+CONSTRUCT {
+  ?subject foaf:page ?page .
+  ?subject foaf:homepage ?homepage .
+} WHERE {
+  OPTIONAL {
+    ?dbpedia_subject foaf:page ?page .
+  }
+  OPTIONAL {
+    ?dbpedia_subject foaf:homepage ?homepage .
+  }
+}

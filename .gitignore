@@ -1,2 +1,7 @@
 target
 lovefilm.nt.gz
+imdb.nt.gz
+freebase.nt.gz
+dbpedia.nt.gz
+cache.tar.gz
+

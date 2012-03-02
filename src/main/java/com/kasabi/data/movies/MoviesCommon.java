@@ -40,18 +40,22 @@ import com.hp.hpl.jena.vocabulary.DCTerms;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
+import com.hp.hpl.jena.vocabulary.XSD;
 
 public class MoviesCommon {
 
 	public static final String DBPEDIA_NS = "http://dbpedia.org/resource/";
-
+	public static final String IMDB_NS = "http://www.imdb.com";
+	public static final String LINKEDMDB_NS = "http://data.linkedmdb.org/resource/movie/";
 	public static final String RDF_FREEBASE_NS = "http://rdf.freebase.com/rdf";
-
-	public static final String KASABI_MOVIES_BASE = "http://data.kasabi.com/dataset/movies/";
+	
+	public static final String SUBDOMAIN = System.getenv("KASABI_MOVIES_SUBDOMAIN");
+	public static final String KASABI_MOVIES_BASE = SUBDOMAIN != null ? "http://" + SUBDOMAIN + ".clients.kasabi.com/" : "http://m.clients.kasabi.com/";
 	public static final String KASABI_MOVIES_SCHEMA = KASABI_MOVIES_BASE + "schema/";
-	public static final String KASABI_MOVIES_NS = KASABI_MOVIES_BASE ;
-	public static final String KASABI_ACTORS_NS = KASABI_MOVIES_BASE + "actors/" ;
-	public static final String KASABI_DIRECTORS_NS = KASABI_MOVIES_BASE + "directors/" ;
+	public static final String KASABI_MOVIES_NS = KASABI_MOVIES_BASE + "movies/" ;
+	public static final String KASABI_PEOPLE_NS = KASABI_MOVIES_BASE + "people/" ;
+	public static final String KASABI_ACTORS_NS = KASABI_MOVIES_BASE + "people/" ;
+	public static final String KASABI_DIRECTORS_NS = KASABI_MOVIES_BASE + "people/" ;
 
 	public static Model createModel() {
 		Model model = ModelFactory.createDefaultModel();
@@ -70,10 +74,12 @@ public class MoviesCommon {
 		model.setNsPrefix("rdfs", RDFS.getURI());
 		model.setNsPrefix("owl", OWL.getURI());
 		model.setNsPrefix("foaf", FOAF.getURI());
+		model.setNsPrefix("xsd", XSD.getURI());
 		model.setNsPrefix("dc", DC.getURI());
 		model.setNsPrefix("dct", DCTerms.getURI());
 		model.setNsPrefix("freebase", "http://rdf.freebase.com/ns/");
 		model.setNsPrefix("wikipedia", "http://en.wikipedia.org/wiki/");
+		model.setNsPrefix("movie", "http://data.linkedmdb.org/resource/movie/");
 	}
 	
 	public static FileManager getFileManager(String namespace) {

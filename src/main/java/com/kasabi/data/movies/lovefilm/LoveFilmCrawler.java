@@ -25,6 +25,9 @@ import java.io.OutputStream;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
+import com.kasabi.data.movies.Crawler;
+import com.kasabi.data.movies.Scraper;
+
 
 public class LoveFilmCrawler {
 
@@ -32,8 +35,10 @@ public class LoveFilmCrawler {
 	
 	public static void main(String[] args) throws IOException {
 		OutputStream out = new BufferedOutputStream ( new GZIPOutputStream( new FileOutputStream ( "lovefilm.nt.gz") ) );
-		Crawler crawler = new Crawler(BASE, "/browse/film/p1/?rows=50", "div.fl_detail_info", "h2 > a[href^=http://www.lovefilm.com/film/]", "a:matches(Next)", out);
+		Scraper scraper = new LoveFilmMovieScraper(BASE, out);
+		Crawler crawler = new Crawler(BASE, "/browse/film/p1/?rows=50", "div.fl_detail_info", "h2 > a[href^=http://www.lovefilm.com/film/]", "a:matches(Next)", scraper);
 		crawler.setRetrieveAll(false);
+		@SuppressWarnings("unused")
 		Set<String> pages = crawler.crawl();
 		out.flush();
 		out.close();

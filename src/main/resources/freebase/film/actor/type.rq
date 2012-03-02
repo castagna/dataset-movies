@@ -1,6 +1,0 @@
-PREFIX freebase: <http://rdf.freebase.com/ns/>
-
-CONSTRUCT {
-  ?subject a freebase:film.actor .
-} WHERE {
-}

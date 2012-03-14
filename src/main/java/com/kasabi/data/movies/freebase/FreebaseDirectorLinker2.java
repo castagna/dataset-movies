@@ -19,8 +19,6 @@
 package com.kasabi.data.movies.freebase;
 
 import org.openjena.atlas.lib.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -30,8 +28,6 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class FreebaseDirectorLinker2 extends FreebaseBaseLinker2 {
 
-	private static final Logger log = LoggerFactory.getLogger(FreebaseDirectorLinker2.class) ;
-	
 	public FreebaseDirectorLinker2(String base) {
 		super(base);
 	}

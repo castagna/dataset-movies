@@ -19,8 +19,6 @@
 package com.kasabi.data.movies.dbpedia;
 
 import org.openjena.atlas.lib.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -30,8 +28,6 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class DBPediaDirectorLinker2 extends DBPediaBaseLinker2 {
 
-	private static final Logger log = LoggerFactory.getLogger(DBPediaDirectorLinker2.class) ;
-	
 	public DBPediaDirectorLinker2(String base) {
 		super(base);
 	}

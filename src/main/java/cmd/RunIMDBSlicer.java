@@ -24,10 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.openjena.atlas.lib.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -40,17 +36,11 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.base.file.Location;
-import com.hp.hpl.jena.vocabulary.OWL;
-import com.kasabi.data.movies.Linker2;
 import com.kasabi.data.movies.MoviesCommon;
 
 public class RunIMDBSlicer {
-	
-	private static final Logger log = LoggerFactory.getLogger(RunIMDBSlicer.class) ;
 	
 	private static String prefixes = 
 		"PREFIX movies: <" + MoviesCommon.KASABI_MOVIES_SCHEMA + "> " +
@@ -79,7 +69,6 @@ public class RunIMDBSlicer {
 			ResultSet results = select ( model, query );
 			while ( results.hasNext() ) {
 				QuerySolution solution = results.nextSolution();
-				String str = solution.getLiteral("str").getLexicalForm().trim();
 				Resource subject = solution.getResource("uri");
 				result.add(imdb.listStatements(subject, (Property)null, (RDFNode)null));
 			}

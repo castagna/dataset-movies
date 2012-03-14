@@ -4,4 +4,8 @@ imdb.nt.gz
 freebase.nt.gz
 dbpedia.nt.gz
 cache.tar.gz
+youtube.nt.gz
+imdb*.nt.gz
+
+
 

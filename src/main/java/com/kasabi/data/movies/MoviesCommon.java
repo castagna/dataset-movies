@@ -48,11 +48,15 @@ public class MoviesCommon {
 	public static final String IMDB_NS = "http://www.imdb.com";
 	public static final String LINKEDMDB_NS = "http://data.linkedmdb.org/resource/movie/";
 	public static final String RDF_FREEBASE_NS = "http://rdf.freebase.com/rdf";
+	public static final String YOUTUBE_NS = "http://www.youtube.com";
+	public static final String BIBO_NS = "http://purl.org/ontology/bibo/";
+	public static final String SCHEMA_ORG_NS = "http://schema.org/";
 	
 	public static final String SUBDOMAIN = System.getenv("KASABI_MOVIES_SUBDOMAIN");
+	public static final String YOUTUBE_CHANNEL = System.getenv("KASABI_MOVIES_YOUTUBE_CHANNEL");
 	public static final String KASABI_MOVIES_BASE = SUBDOMAIN != null ? "http://" + SUBDOMAIN + ".clients.kasabi.com/" : "http://m.clients.kasabi.com/";
 	public static final String KASABI_MOVIES_SCHEMA = KASABI_MOVIES_BASE + "schema/";
-	public static final String KASABI_MOVIES_NS = KASABI_MOVIES_BASE + "movies/" ;
+	public static final String KASABI_MOVIES_NS = KASABI_MOVIES_BASE + "films/" ;
 	public static final String KASABI_PEOPLE_NS = KASABI_MOVIES_BASE + "people/" ;
 	public static final String KASABI_ACTORS_NS = KASABI_MOVIES_BASE + "people/" ;
 	public static final String KASABI_DIRECTORS_NS = KASABI_MOVIES_BASE + "people/" ;
@@ -80,6 +84,8 @@ public class MoviesCommon {
 		model.setNsPrefix("freebase", "http://rdf.freebase.com/ns/");
 		model.setNsPrefix("wikipedia", "http://en.wikipedia.org/wiki/");
 		model.setNsPrefix("movie", "http://data.linkedmdb.org/resource/movie/");
+		model.setNsPrefix("schemaorg", SCHEMA_ORG_NS);
+		model.setNsPrefix("bibo", BIBO_NS);
 	}
 	
 	public static FileManager getFileManager(String namespace) {

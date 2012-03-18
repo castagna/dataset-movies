@@ -22,12 +22,21 @@ import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Iterator;
 import java.util.zip.GZIPOutputStream;
 
+import org.openjena.atlas.iterator.Iter;
 import org.openjena.atlas.lib.Pair;
+import org.openjena.riot.out.SinkTripleOutput;
+import org.openjena.riot.system.IRIResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.iri.IRI;
+import com.hp.hpl.jena.iri.IRIFactory;
 import com.hp.hpl.jena.query.Dataset;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -39,6 +48,7 @@ import com.hp.hpl.jena.query.ResultSetRewindable;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.sparql.util.NodeFactory;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.base.file.Location;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -63,15 +73,15 @@ public class RunLinker2 {
 		"PREFIX linkedmdb: <http://data.linkedmdb.org/resource/movie/>";
 	private static String directors = prefixes + "SELECT DISTINCT ?str ?uri { ?uri a foaf:Person . ?uri foaf:name ?str . ?film movies:directed ?uri . } ORDER BY ?str ";
 	private static String actors = prefixes + "SELECT DISTINCT ?str ?uri { ?uri a foaf:Person . ?uri foaf:name ?str . ?uri movies:featured_in ?film . } ORDER BY ?str ";
-	private static String films = prefixes + "SELECT DISTINCT ?str ?uri { ?uri a bibo:Film . ?uri dct:title ?str . } ORDER BY ?str ";
+	private static String films = prefixes + "SELECT DISTINCT ?str ?uri { ?uri a bibo:Film . ?uri dct:title ?str . } ORDER BY ?str";
 
 	public static void main(String[] args) throws IOException {
 		Location location = new Location ("/opt/datasets/tdb/movies");
 		Dataset dataset = TDBFactory.createDataset(location);
 		Model model = dataset.getDefaultModel();
 
+		// link_dbpedia(model);
 		link_freebase(model);
-		link_dbpedia(model);
 	}
 
 	private static void link_dbpedia(Model model) throws IOException {
@@ -81,22 +91,59 @@ public class RunLinker2 {
 		link ( result, model, new DBPediaMovieLinker2(MoviesCommon.DBPEDIA_NS), films );
 		
 		OutputStream out = new BufferedOutputStream( new GZIPOutputStream( new FileOutputStream ("dbpedia.nt.gz") ) );
-		result.write(out, "N-TRIPLES");
-		out.close();
+		SinkFixProblems sink = new SinkFixProblems ( out );
+        Iterator<Triple> iter = result.getGraph().find(Node.ANY, Node.ANY, Node.ANY) ;
+        Iter.sendToSink(iter, sink) ;
+        out.close();
 
 		result = null;
 	}
 	
+	static class SinkFixProblems extends SinkTripleOutput {
+
+		private IRIFactory iriFactory = IRIResolver.iriFactory;
+
+		public SinkFixProblems ( OutputStream out ) {
+			super ( out );
+		}
+
+		@Override
+		public void send ( Triple triple ) {
+			Node o = triple.getObject() ;
+			if ( o.isURI() ) {
+				IRI iri = iriFactory.create(o.getURI());
+				if ( iri.hasViolation(true) ) {
+					log.warn ("Ignoring not valid triple {}", triple);
+					return;
+				}
+			} if ( o.isLiteral() ) {
+				if ( XSDDatatype.XSDgYear.equals( o.getLiteralDatatype() ) ) {
+					log.warn ("Fixing up not valid literal in {}", triple);
+					String year = o.getLiteralLexicalForm().trim().substring(0, 4);
+					triple = new Triple ( triple.getSubject(), triple.getPredicate(), NodeFactory.createLiteralNode(year, null, XSDDatatype.XSDgYear.getURI()) );
+				}
+				if ( "es-419".equals(o.getLiteralLanguage()) ) {
+					log.warn ("Fixing up not valid literal language {}", triple);
+					triple = new Triple ( triple.getSubject(), triple.getPredicate(), NodeFactory.createLiteralNode(o.getLiteralLexicalForm(), "es", null) );					
+				}
+			}
+			super.send ( triple );
+		}
+
+	}
+
 	private static void link_freebase(Model model) throws IOException {
 		Model result = ModelFactory.createDefaultModel(); 
 		link ( result, model, new FreebaseActorLinker2(MoviesCommon.RDF_FREEBASE_NS), actors );
 		link ( result, model, new FreebaseDirectorLinker2(MoviesCommon.RDF_FREEBASE_NS), directors );
 		link ( result, model, new FreebaseMovieLinker2(MoviesCommon.RDF_FREEBASE_NS), films ); // we can use the year to disambiguate remakes
-		
-		OutputStream out = new BufferedOutputStream( new GZIPOutputStream( new FileOutputStream ("freebase.nt.gz") ) );
-		result.write(out, "N-TRIPLES");
-		out.close();
 
+		OutputStream out = new BufferedOutputStream( new GZIPOutputStream( new FileOutputStream ("freebase.nt.gz") ) );
+		SinkFixProblems sink = new SinkFixProblems ( out );
+        Iterator<Triple> iter = result.getGraph().find(Node.ANY, Node.ANY, Node.ANY) ;
+        Iter.sendToSink(iter, sink) ;
+        out.close();
+		
 		result = null;	
 	}
 	

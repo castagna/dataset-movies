@@ -48,6 +48,7 @@ import com.hp.hpl.jena.query.ResultSetRewindable;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.sparql.util.NodeFactory;
 import com.hp.hpl.jena.tdb.TDBFactory;
 import com.hp.hpl.jena.tdb.base.file.Location;
@@ -152,12 +153,15 @@ public class RunLinker2 {
 		while ( results.hasNext() ) {
 			QuerySolution solution = results.nextSolution();
 			String str = solution.getLiteral("str").getLexicalForm().trim();
-			Resource subject = solution.getResource("uri");
+			Resource subject = ResourceFactory.createResource(solution.getResource("uri").getURI().replaceAll("/movies/", "/films/"));
 			try {
 				log.debug("Linking \"{}\" <{}> ...", str, subject.getURI());
 				Pair<Resource, Model> pair = linker.link(str, subject, OWL.sameAs);
 				if ( pair != null ) {
 					result.add(pair.getRight());
+					if ( log.isDebugEnabled() ) {
+						// pair.getRight().write(System.out, "TURTLE");
+					}
 				}
 			} catch ( Exception e ) {
 				log.error(e.getMessage(), e);

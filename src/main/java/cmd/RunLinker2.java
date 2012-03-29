@@ -81,8 +81,8 @@ public class RunLinker2 {
 		Dataset dataset = TDBFactory.createDataset(location);
 		Model model = dataset.getDefaultModel();
 
-		// link_dbpedia(model);
-		link_freebase(model);
+		link_dbpedia(model);
+//		link_freebase(model);
 	}
 
 	private static void link_dbpedia(Model model) throws IOException {
